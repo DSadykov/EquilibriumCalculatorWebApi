@@ -1,10 +1,8 @@
+using ImageConverterWebApi.Services;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.EntityFrameworkCore.Design;
 using NikCalcWebApi.DB;
 using NikCalcWebApi.Services;
 using NikCalcWebApi.Services.Authenticate;
-using ImageConverterWebApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,11 +36,11 @@ app.UseMiddleware<JwtMiddleware>();
 app.Run();
 void ConfigureServices(IServiceCollection services, ConfigurationManager configuration)
 {
-    var connectionString = configuration.GetConnectionString("Default"); 
+    var connectionString = configuration.GetConnectionString("Default");
     services.AddDbContext<MainDbContext>(options => options.UseMySql(connectionString,
         new MySqlServerVersion(new Version(8, 0, 28))));
     services.AddCors();
-    services.AddScoped<DbRepository>();
+    services.AddScoped<IDbRepository,DbRepository>();
     services.AddScoped<IUserService, UserService>();
     services.AddSingleton<EncryptionService>();
     services.AddTransient<JwtMiddleware>();

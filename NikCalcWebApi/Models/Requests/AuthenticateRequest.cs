@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace NikCalcWebApi.Requests;
-
+namespace NikCalcWebApi.Models.Requests;
 public class AuthenticateRequest
 {
     [Required]

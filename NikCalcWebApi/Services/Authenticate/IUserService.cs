@@ -1,5 +1,5 @@
-﻿using NikCalcWebApi.Requests;
-using NikCalcWebApi.Responses;
+﻿using NikCalcWebApi.Models.Requests;
+using NikCalcWebApi.Models.Responses;
 
 namespace NikCalcWebApi.Services.Authenticate;
 

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using NikCalcWebApi.Requests;
-using NikCalcWebApi.Responses;
+using NikCalcWebApi.Models.Requests;
+using NikCalcWebApi.Models.Responses;
 using NikCalcWebApi.Services.Authenticate;
 
 namespace NikCalcWebApi.Controllers;
@@ -19,7 +19,7 @@ public class AuthenticateController : ControllerBase
     [HttpPost("authenticate")]
     public async Task<IActionResult> Authenticate(AuthenticateRequest model)
     {
-        var response = _userService.Authenticate(model);
+        Task<AuthenticateResponse>? response = _userService.Authenticate(model);
         return CheckResponse(await response);
     }
 

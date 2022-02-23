@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using NikCalcWebApi.DB;
 using NikCalcWebApi.Services;
 
 namespace NikCalcWebApi.Controllers;
@@ -9,43 +7,43 @@ namespace NikCalcWebApi.Controllers;
 [ApiController, Route("api/[controller]")]
 public class GetTextBlocksController : ControllerBase
 {
-    private DbRepository _dbRepository;
+    private readonly IDbRepository _dbRepository;
 
-    public GetTextBlocksController(DbRepository reviewsDbContext)
+    public GetTextBlocksController(IDbRepository reviewsDbContext)
     {
         _dbRepository = reviewsDbContext;
     }
     [HttpGet("GetTextBlocks")]
     public async Task<ActionResult> Get(string tabName)
     {
-        var texts = await _dbRepository.GetTextsFromTab(tabName);
-        var groupedTexts = texts.GroupBy(x => x.Position);
-        var result = new List<Dictionary<string, string>>(groupedTexts.Count());
-        var tmpPos = 0;
-        foreach (var groupedText in groupedTexts)
+        List<Models.TextBlockModel>? texts = await _dbRepository.GetTextsFromTabAsync(tabName);
+        IEnumerable<IGrouping<int, Models.TextBlockModel>>? groupedTexts = texts.GroupBy(x => x.Position);
+        List<Dictionary<string, string>>? result = new List<Dictionary<string, string>>(groupedTexts.Count());
+        int tmpPos = 0;
+        foreach (IGrouping<int, Models.TextBlockModel>? groupedText in groupedTexts)
         {
             result.Add(new());
-            foreach (var value in groupedText)
+            foreach (Models.TextBlockModel? value in groupedText)
             {
                 result[tmpPos][value.Language.Name] = value.Text;
             }
             tmpPos++;
         }
-        var serializedResult = JsonConvert.SerializeObject(result);
+        string? serializedResult = JsonConvert.SerializeObject(result);
         return Content(serializedResult);
     }
     [HttpGet("GetAllTabs")]
     public async Task<ActionResult> GetTabs()
     {
-        var result = _dbRepository.GetTabsName();
-        var serializedResult = JsonConvert.SerializeObject(await result);
+        Task<List<string>>? result = _dbRepository.GetTabsNameAsync();
+        string? serializedResult = JsonConvert.SerializeObject(await result);
         return Content(serializedResult);
     }
     [HttpGet("GetAllLanguages")]
     public async Task<ActionResult> GetLanguages()
     {
-        var result = _dbRepository.GetLanguagesName();
-        var serializedResult = JsonConvert.SerializeObject(await result);
+        Task<List<string>>? result = _dbRepository.GetLanguagesNameAsync();
+        string? serializedResult = JsonConvert.SerializeObject(await result);
         return Content(serializedResult);
     }
 }

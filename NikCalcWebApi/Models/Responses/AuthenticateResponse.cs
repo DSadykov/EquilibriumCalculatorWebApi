@@ -1,4 +1,4 @@
-﻿namespace NikCalcWebApi.Responses;
+﻿namespace NikCalcWebApi.Models.Responses;
 
 public class AuthenticateResponse
 {

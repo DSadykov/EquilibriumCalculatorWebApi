@@ -1,6 +1,6 @@
-﻿using NikCalcWebApi.Requests;
-using NikCalcWebApi.Responses;
-using NikCalcWebApi.Extensions;
+﻿using NikCalcWebApi.Extensions;
+using NikCalcWebApi.Models.Requests;
+using NikCalcWebApi.Models.Responses;
 
 namespace NikCalcWebApi.Services.Authenticate;
 
@@ -19,8 +19,8 @@ public class UserService : IUserService
 
     public async Task<AuthenticateResponse> Authenticate(AuthenticateRequest model)
     {
-        var user = await _userRepository
-            .GetUserByCredentials(model.UserName, _encryptionService.Encrypt( model.Password));
+        Models.UserModel? user = await _userRepository
+            .GetUserByCredentialsAsync(model.UserName, _encryptionService.Encrypt(model.Password));
         if (user == null)
         {
             return new()
@@ -28,31 +28,28 @@ public class UserService : IUserService
                 ErrorMessage = "Wrong email or password!"
             };
         }
-        var token = _configuration.GenerateJwtToken(user);
+        string? token = _configuration.GenerateJwtToken(user);
         return new() { Token = token };
     }
 
     public async Task<AuthenticateResponse> Register(AuthenticateRequest userModel)
     {
-        if (await _userRepository.CheckEmailTaken(userModel.UserName))
+        if (await _userRepository.CheckEmailTakenAsync(userModel.UserName))
         {
             return new()
             {
                 ErrorMessage = "Email is already taken!"
             };
         }
-        var encryptedPassword = _encryptionService.Encrypt(userModel.Password);
-        await _userRepository.AddUser(new()
+        string? encryptedPassword = _encryptionService.Encrypt(userModel.Password);
+        Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<Models.UserModel>? user = await _userRepository.AddUserAsync(new()
         {
             UserName = userModel.UserName,
             Password = encryptedPassword,
         });
-        await _userRepository.SaveChangesAsync();
-        var response = await Authenticate(new AuthenticateRequest
-        {
-            UserName = userModel.UserName,
-            Password = userModel.Password
-        });
-        return response;
+        Task? saveTask = _userRepository.SaveChangesAsync();
+        string? token = _configuration.GenerateJwtToken(user.Entity);
+        await saveTask;
+        return new() { Token = token };
     }
 }

@@ -1,5 +1,4 @@
-﻿namespace NikCalcWebApi.Requests;
-
+﻿namespace NikCalcWebApi.Models.Requests;
 public class AddTextBlockRequest
 {
     public List<TextBlock> Texts { get; set; }

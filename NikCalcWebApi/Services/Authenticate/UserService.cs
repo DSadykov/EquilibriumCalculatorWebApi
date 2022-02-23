@@ -21,7 +21,6 @@ public class UserService : IUserService
     {
         var user = await _userRepository
             .GetUserByCredentials(model.UserName, _encryptionService.Encrypt( model.Password));
-
         if (user == null)
         {
             return new()
@@ -29,9 +28,7 @@ public class UserService : IUserService
                 ErrorMessage = "Wrong email or password!"
             };
         }
-
         var token = _configuration.GenerateJwtToken(user);
-
         return new() { Token = token };
     }
 
@@ -50,11 +47,12 @@ public class UserService : IUserService
             UserName = userModel.UserName,
             Password = encryptedPassword,
         });
-        var response = Authenticate(new AuthenticateRequest
+        await _userRepository.SaveChangesAsync();
+        var response = await Authenticate(new AuthenticateRequest
         {
             UserName = userModel.UserName,
             Password = userModel.Password
         });
-        return await response;
+        return response;
     }
 }
